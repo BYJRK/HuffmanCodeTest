@@ -9,7 +9,8 @@ Input the symbol and its probability (e.g. A 0.5), use "." to stop:
 > B 0.3
 > C 0.2
 > .
-Extend time: >1
+Extend time
+> 1
 Time lapsed for 0.0020172 second(s)
 
 Results:
