@@ -13,20 +13,12 @@ namespace HuffmanCodeTest
         {
             List<Alphabet> MyList = new List<Alphabet>();
             InputList(MyList);
-            Console.WriteLine("Extend time: ");
-            if (int.TryParse(Console.ReadLine(), out int exTime) && exTime >= 0)
-            {
-                for (int i = 0; i < exTime; i++)
-                {
-                    Extend(ref MyList);
-                }
-            }
-            else
-            {
-                Console.WriteLine("Invalid input. No extension by default.");
-            }
+            ExtendList(ref MyList);
+            MyList.Sort();
+            Tic();
             FindHuffmanCode(MyList);
-            SortList(MyList);
+            Toc();
+            Console.WriteLine("\nResults:\n===========================================");
             DisplayList(MyList.OrderBy((x) => (x.Content)).ToList());
             DisplayInfo(MyList);
             Console.WriteLine("Press any key to continue.");
@@ -60,15 +52,17 @@ namespace HuffmanCodeTest
             }
             Console.WriteLine("--------------------------------------");
         }
-        static void SortList(List<Alphabet> AlphabetList)
-        {
-            AlphabetList.Sort();
-        }
+        /// <summary>
+        /// A recursive function stops only all symbols in alphabet are combined to a single node
+        /// </summary>
         static void FindHuffmanCode(List<Alphabet> list)
         {
             if (list.Count <= 1) return;
-            list = list.OrderBy((x) => (x.Probability)).ToList();
+            // Using Insert instead of sorting everytime will significantly improve the efficiency
+            //list = list.OrderBy((x) => (x.Probability)).ToList();
+            list = new List<Alphabet>(list);
 
+            // Always combine the two symbols/nodes with the lowest probabilities
             list[0].AppendCode("1");
             list[1].AppendCode("0");
 
@@ -76,22 +70,55 @@ namespace HuffmanCodeTest
             var combine = new Alphabet("node", list[0].Probability + list[1].Probability);
             combine.Append(list[0]);
             combine.Append(list[1]);
-            combine.CurrentCode = combine.Container.OrderBy((x) => (-x.CurrentCode.Length)).ToList()[0].CurrentCode;
+            // To represent the node with the current longest codeword (only for step demonstrations. Useless)
+            //combine.CurrentCode = combine.Container.OrderBy((x) => (-x.CurrentCode.Length)).ToList()[0].CurrentCode;
             list.RemoveRange(0, 2);
-            list.Add(combine);
-            FindHuffmanCode(list);
-        }
-        static void Extend(ref List<Alphabet> list)
-        {
-            var tempList = new List<Alphabet>();
-            foreach (var item1 in list)
+            // Insert instead of sorting
+            for (int i = 0; i <= list.Count; i++)
             {
-                foreach (var item2 in list)
+                if (i == list.Count)
                 {
-                    tempList.Add(new Alphabet(item1.Content + item2.Content, item1.Probability * item2.Probability));
+                    // the probability of combined node becomes the greatest
+                    list.Add(combine);
+                    break;
+                }
+                if (combine.Probability <= list[i].Probability)
+                {
+                    list.Insert(i, combine);
+                    break;
                 }
             }
-            list = tempList.OrderBy((x) => (x.Content)).ToList();
+            //DisplayList(list);
+            FindHuffmanCode(list);
+        }
+        /// <summary>
+        /// Extend the list by combining every two symbols (1-bit) into a new symbol (2-bit)
+        /// Can extend more than once
+        /// </summary>
+        static void ExtendList(ref List<Alphabet> list)
+        {
+            Console.Write("Extend time:\n> ");
+            if (int.TryParse(Console.ReadLine(), out int exTime) && exTime >= 0)
+            {
+                for (int i = 0; i < exTime; i++)
+                {
+                    var tempList = new List<Alphabet>();
+                    foreach (var item1 in list)
+                    {
+                        foreach (var item2 in list)
+                        {
+                            tempList.Add(new Alphabet(item1.Content + item2.Content, item1.Probability * item2.Probability));
+                        }
+                    }
+                    list = tempList.OrderBy((x) => (x.Content)).ToList();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. No extension by default.");
+            }
+
+
         }
         static void DisplayInfo(List<Alphabet> list)
         {
@@ -120,6 +147,9 @@ namespace HuffmanCodeTest
         }
     }
 
+    /// <summary>
+    /// A symbol or a combination node of several symbols/nodes with probability
+    /// </summary>
     class Alphabet : IComparable
     {
         public float Probability { get; set; }
