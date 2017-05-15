@@ -1,7 +1,7 @@
 # HuffmanCodeTest
 A very simple program to calculate (extended) Huffman code of given alphabet. The efficiency becomes tolerable after the first update (by changing sorting to inserting).
 
-## Example:
+## Example
 
 ```
 Input the symbol and its probability (e.g. A 0.5), use "." to stop:
@@ -9,7 +9,7 @@ Input the symbol and its probability (e.g. A 0.5), use "." to stop:
 > B 0.3
 > C 0.2
 > .
-Extend time
+Extend time:
 > 1
 Time lapsed for 0.0020172 second(s)
 
@@ -30,3 +30,14 @@ Entropy = 2.970951
 Efficiency = 0.9903169
 Press any key to continue.
 ```
+
+## Performance comparison
+
+The first edition sorted the list in every loop, and the efficiency is intolerable. After the first edition, the list would only sort once in the beginning, and in every loop, instead of appending and sorting, directly inserting to the correct position was used. The performance was improved significantly.
+
+For example, `(A, 0.5)`, `(B, 0.3)`, `(C, 0.2)`, extend three times, and the speed of two method are:
+
+|Edition|Duration (sec)|
+|:-:|:-:|
+|1|4.0024628|
+|2|0.1519311|
